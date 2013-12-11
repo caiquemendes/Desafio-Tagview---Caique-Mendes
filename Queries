@@ -1,0 +1,44 @@
+a) O nome dos jogos do gênero ação
+
+SELECT titulo FROM Jogo WHERE genero = 'Ação'
+----
+b) O nome dos personagens que são protagonistas em pelo menos um jogo
+
+SELECT nome FROM Personagem P
+INNER JOIN Jogo_Personagem JP ON P.idPersonagem = JP.idPersonagem AND ehProtagonista = TRUE
+----
+c) Os cinco jogos com maior número de personagens
+
+SELECT titulo FROM Jogo WHERE (
+  SELECT COUNT(*) AS "numero_de_personagens" FROM Jogo_Personagem
+  INNER JOIN Jogo ON Jogo_Personagem.idJogo = Jogo.idJogo
+  ORDER BY "numero_de_personagens" DESC
+)
+LIMIT 5
+----
+d) Os nomes dos personagens que estão em pelo menos um jogo de luta e em um jogo de aventura
+
+SELECT nome FROM Personagem WHERE idPersonagem IN(
+  SELECT idPersonagem FROM Jogo_Personagem WHERE idJogo IN(
+    SELECT idJogo FROM Jogo WHERE genero = 'Aventura') 
+  AND idPersonagem IN (
+    SELECT idPersonagem FROM Jogo_Personagem WHERE idJogo IN(
+      SELECT idJogo FROM Jogo WHERE genero = 'Luta')))
+
+----
+e) Nome dos jogos que possuem mais que cinco personagens
+
+SELECT titulo FROM Jogo J
+INNER JOIN Jogo_Personagem JP ON JP.idJogo = J.idJogo
+INNER JOIN Personagem P ON P.idPersonagem = JP.idPersonagem
+WHERE (
+  SELECT COUNT(*) AS "numero_de_personagens" FROM Jogo_Personagem
+  WHERE "numero_de_personagens" > 5
+)
+----
+f) Nome dos jogos que tenham mais do que dois protagonistas
+
+SELECT titulo FROM Jogo J
+INNER JOIN Jogo_Personagem JP ON JP.idJogo = J.idJogo
+WHERE (SELECT COUNT(*) AS 'qts_protagonistas' FROM Jogo_Personagem WHERE ehProtagonista = TRUE)
+AND 'qts_protagonistas' > 2
